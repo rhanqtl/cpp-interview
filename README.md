@@ -33,7 +33,7 @@
 * [💻 操作系统](#os)
 * [☁️ 计算机网络](#computer-network)
 * [💾 数据库](#database)
-* [📏 软件工程](#software-engineering)
+* [📏 软件工程](#design-patterns)
 * [⚙️ 链接装载库](#link-loading-library)
 * [📚 书籍](#books)
 * [💯 复习刷题网站](#review-of-brush-questions-website)
@@ -1419,7 +1419,7 @@ int main(){
 算法 | 底层算法 | 时间复杂度 | 可不可重复
 ---|---|---|---
 [find](http://www.cplusplus.com/reference/algorithm/find/)|顺序查找|O(n)|可重复
-[sort](https://github.com/gcc-mirror/gcc/blob/master/libstdc++-v3/include/bits/stl_algo.h#L4808)|[内省排序](https://en.wikipedia.org/wiki/Introsort)|O(n*log<sub>2</sub>n)|可重复
+[sort](https://github.com/gcc-mirror/gcc/blob/master/libstdc++-v3/include/bits/stl_algo.h#L4808)|[内省排序](https://en.wikipedia.org/wiki/Introsort)|O(nlogn)|可重复
 
 
 <a id="dsa"></a>
@@ -2733,44 +2733,51 @@ ssize_t write(int fd, const void *buf, size_t count);
         * 解除：撤销处理死锁代价最小的事务，并释放此事务的所有的锁，使其他事务得以继续运行下去。
 * 可串行化调度：多个事务的并发执行是正确的，当且仅当其结果与按某一次序串行地执行这些事务时的结果相同。可串行性时并发事务正确调度的准则。
 
-<a id="software-engineering"></a>
+<a id="design-patterns"></a>
 
-## 📏 软件工程
+## 📏 设计模式
 
-### 设计模式
+https://refactoringguru.cn
 
 > 各大设计模式例子参考：[CSDN专栏 . C++ 设计模式](https://blog.csdn.net/liang19890820/article/details/66974516) 系列博文
 
 [设计模式工程目录](DesignPattern)
 
-### 单例模式
+#### 单例模式
 
 [单例模式例子](DesignPattern/SingletonPattern)
 
-### 抽象工厂模式
+#### 抽象工厂模式
 
 [抽象工厂模式例子](DesignPattern/AbstractFactoryPattern)
 
-### 适配器模式
+#### 适配器模式
 
 [适配器模式例子](DesignPattern/AdapterPattern)
 
-### 桥接模式
+####  桥接模式
 
 [桥接模式例子](DesignPattern/BridgePattern)
 
-### 观察者模式
+####  观察者模式
 
 [观察者模式例子](DesignPattern/ObserverPattern)
 
-### 设计模式的六大原则
+### 设计原则
+
+#### SOLID
 
 * 单一职责原则（SRP，Single Responsibility Principle）
-* 里氏替换原则（LSP，Liskov Substitution Principle）
-* 依赖倒置原则（DIP，Dependence Inversion Principle）
-* 接口隔离原则（ISP，Interface Segregation Principle）
-* 迪米特法则（LoD，Law of Demeter）
 * 开放封闭原则（OCP，Open Close Principle）
+* 里氏替换原则（LSP，Liskov Substitution Principle）
+* 接口隔离原则（ISP，Interface Segregation Principle）
+* 依赖倒置原则（DIP，Dependence Inversion Principle）
+
+#### GRASP
+
+#### 其他
+
+* 迪米特法则（LoD，Law of Demeter）
 
 <a id="link-loading-library"></a>
 
