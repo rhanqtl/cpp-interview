@@ -305,6 +305,20 @@ int main()
 } 
 ```
 
+**内联函数 vs. 宏**
+
+https://techdifferences.com/difference-between-inline-and-macro.html
+
+个人认为最重要的是四点：
+- 内联函数的内个参数只会求值一次；宏在参数每次出现时都会求值一次
+- 内敛函数是类型安全的；宏不是
+- 内联函数可以有命名空间（namespace 或者 class 成员）；宏没有命名空间
+- 有些功能内联函数做不到：条件编译、文本替换
+
+此外，还有：
+- 内联函数是否展开是由编译器决定的；宏总是会展开
+- 内联函数是在编译期处理的；宏是由预处理器处理的
+
 ### volatile
 
 ```cpp
@@ -2267,28 +2281,27 @@ B树/B+树 |O(log<sub>2</sub>n) |   |
 
 可以这样判断自己 CPU 字节序是大端还是小端：
 
-```cpp
-#include <iostream>
-using namespace std;
+```c
+#include <stdio.h>
 
-int main()
-{
+int main() {
 	int i = 0x12345678;
 
-	if (*((char*)&i) == 0x12)
-		cout << "大端" << endl;
-	else	
-		cout << "小端" << endl;
+	if (*((char*) &i) == 0x12) {
+        printf("big endian\n");
+    } else {
+        printf("little endian\n);
+    }
 
 	return 0;
 }
 ```
 
-##### 各架构处理器的字节序
-
-* x86（Intel、AMD）、MOS Technology 6502、Z80、VAX、PDP-11 等处理器为小端序；
-* Motorola 6800、Motorola 68000、PowerPC 970、System/370、SPARC（除 V9 外）等处理器为大端序；
-* ARM（默认小端序）、PowerPC（除 PowerPC 970 外）、DEC Alpha、SPARC V9、MIPS、PA-RISC 及 IA64 的字节序是可配置的。
+> **各架构处理器的字节序**
+> 
+> * x86（Intel、AMD）、MOS Technology 6502、Z80、VAX、PDP-11 等处理器为小端序；
+> * Motorola 6800、Motorola 68000、PowerPC 970、System/370、SPARC（除 V9 外）等处理器为大端序；
+> * ARM（默认小端序）、PowerPC（除 PowerPC 970 外）、DEC Alpha、SPARC V9、MIPS、PA-RISC 及 IA64 的字节序是可配置的。
 
 #### 网络字节序
 
@@ -3704,7 +3717,4 @@ int main( void )
 
 ## 📜 License
 
-本仓库遵循 CC BY-NC-SA 4.0（署名 - 非商业性使用 - 相同方式共享） 协议，转载请注明出处，不得用于商业目的。
-
-[![CC BY-NC-SA 4.0](https://i.creativecommons.org/l/by-nc-sa/4.0/88x31.png)](https://github.com/huihut/interview/blob/master/LICENSE)
-
+本仓库遵循 CC BY-NC-SA 4.0（署名 - 非商业性使用 - 相同方式共享） 协议，
