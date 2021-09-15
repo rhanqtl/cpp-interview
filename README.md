@@ -33,7 +33,7 @@
 * [💻 操作系统](#os)
 * [☁️ 计算机网络](#computer-network)
 * [💾 数据库](#database)
-* [📏 软件工程](#design-patterns)
+* [📏 设计模式](#design-patterns)
 * [⚙️ 链接装载库](#link-loading-library)
 * [📚 书籍](#books)
 * [💯 复习刷题网站](#review-of-brush-questions-website)
@@ -528,8 +528,7 @@ C 实现 C++ 的面向对象特性（封装、继承、多态）
 explicit 使用
 
 ```cpp
-struct A
-{
+struct A {
 	A(int) { }
 	operator bool() const { return true; }
 };
@@ -569,6 +568,36 @@ int main()
 	bool b8 = static_cast<bool>(b1);  // OK：static_cast 进行直接初始化
 
 	return 0;
+}
+```
+
+### `final` 关键字
+
+C++11 新增了 final 关键字，可用于类和成员函数。
+
+在 C++11 之前，需要通过这种方式模拟：
+
+https://www.stroustrup.com/bs_faq2.html#no-derivation
+
+```cpp
+class TheFinalClass;
+
+class MakeFinal {
+  friend class TheFinalClass;
+
+ private:
+  MakeFinal() {}
+  MakeFinal(const MakeFinal &) {}
+};
+
+// 注意这里的 virtual 是必不可少的，这样让 D 直接去调用 MakeFinal 的 ctor 而不是通过 TheFinalClass 间接调用
+class TheFinalClass : public virtual MakeFinal {};
+
+class D : public class TheFinalClass {};
+
+int main() {
+    // compile error
+    D d;
 }
 ```
 
@@ -1389,38 +1418,93 @@ int main(){
 
 ## 📦 STL
 
+STL 的六大组件：
+- 容器
+- 算法
+- 迭代器
+- 仿函数
+- 适配器
+- 空间分配器
+
 ### STL 索引
+
+https://cplusplus.com
 
 [STL 方法含义索引](https://github.com/huihut/interview/tree/master/STL)
 
 ### STL 容器
 
-容器 | 底层数据结构 | 时间复杂度 | 有无序 | 可不可重复 | 其他
----|---|---|---|---|---
-[array](https://github.com/huihut/interview/tree/master/STL#array)|数组|随机读改 O(1)|无序|可重复|支持随机访问
-[vector](https://github.com/huihut/interview/tree/master/STL#vector)|数组|随机读改、尾部插入、尾部删除 O(1)<br/>头部插入、头部删除 O(n)|无序|可重复|支持随机访问
-[deque](https://github.com/huihut/interview/tree/master/STL#deque)|双端队列|头尾插入、头尾删除 O(1)|无序|可重复|一个中央控制器 + 多个缓冲区，支持首尾快速增删，支持随机访问
-[forward_list](https://github.com/huihut/interview/tree/master/STL#forward_list)|单向链表|插入、删除 O(1)|无序|可重复|不支持随机访问
-[list](https://github.com/huihut/interview/tree/master/STL#list)|双向链表|插入、删除 O(1)|无序|可重复|不支持随机访问
-[stack](https://github.com/huihut/interview/tree/master/STL#stack)|deque / list|顶部插入、顶部删除 O(1)|无序|可重复|deque 或 list 封闭头端开口，不用 vector 的原因应该是容量大小有限制，扩容耗时
-[queue](https://github.com/huihut/interview/tree/master/STL#queue)|deque / list|尾部插入、头部删除 O(1)|无序|可重复|deque 或 list 封闭头端开口，不用 vector 的原因应该是容量大小有限制，扩容耗时
-[priority_queue](https://github.com/huihut/interview/tree/master/STL#priority_queue)|vector + max-heap|插入、删除 O(log<sub>2</sub>n)|有序|可重复|vector容器+heap处理规则
-[set](https://github.com/huihut/interview/tree/master/STL#set)|红黑树|插入、删除、查找 O(log<sub>2</sub>n)|有序|不可重复|
-[multiset](https://github.com/huihut/interview/tree/master/STL#multiset)|红黑树|插入、删除、查找 O(log<sub>2</sub>n)|有序|可重复|
-[map](https://github.com/huihut/interview/tree/master/STL#map)|红黑树|插入、删除、查找 O(log<sub>2</sub>n)|有序|不可重复|
-[multimap](https://github.com/huihut/interview/tree/master/STL#multimap)|红黑树|插入、删除、查找 O(log<sub>2</sub>n)|有序|可重复|
-[unordered_set](https://github.com/huihut/interview/tree/master/STL#unordered_set)|哈希表|插入、删除、查找 O(1) 最差 O(n)|无序|不可重复|
-[unordered_multiset](https://github.com/huihut/interview/tree/master/STL#unordered_multiset)|哈希表|插入、删除、查找 O(1) 最差 O(n)|无序|可重复|
-[unordered_map](https://github.com/huihut/interview/tree/master/STL#unordered_map)|哈希表|插入、删除、查找 O(1) 最差 O(n)|无序|不可重复|
-[unordered_multimap](https://github.com/huihut/interview/tree/master/STL#unordered_multimap)|哈希表|插入、删除、查找 O(1) 最差 O(n)|无序|可重复|
+> **术语：ordered vs. sorted**
+> 
+> ordered 是指除了第一个元素，每个元素都有一个前驱（用 pred 表示），除了最后一个元素，每个元素都有一个后继（用 succ 表示），但是
+> - 元素不保证是可比较的（comparable）
+> - 即使元素可比较，也不保证 `R(key(pred(x)), key(x)) && R(key(x), key(succ(x)))`
+> 
+> sorted 是在 ordered 的基础上保证了两个条件成立
 
-### STL 算法
+#### 顺序容器
+
+C++ 提供的顺序容器都只能满足 ordered
+
+类签名 | 底层数据结构 | 时间复杂度  | 可不可重复 | 其他
+---|---|---|---|---|---
+[array<T, N> (since C++11)](https://github.com/huihut/interview/tree/master/STL#array)|C-style 数组|随机读写 O(1)|可重复|支持随机访问
+[vector](https://github.com/huihut/interview/tree/master/STL#vector)|C-style 数组|随机读写、尾部插入、尾部删除 O(1)<br/>头部插入、头部删除 O(n)|可重复|支持随机访问
+[deque](https://github.com/huihut/interview/tree/master/STL#deque)|目录 + 内存块|头尾插入/删除 O(1)|可重复|一个中央控制器 + 多个缓冲区，支持首尾快速增删，支持随机访问
+[forward_list](https://github.com/huihut/interview/tree/master/STL#forward_list)|单向链表|插入、删除 O(1)|可重复|不支持随机访问
+[list](https://github.com/huihut/interview/tree/master/STL#list)|双向环形链表|插入、删除 O(1)|可重复|不支持随机访问
+
+#### 关联式容器
+
+某种程度上关联式容器都是适配器：`set` `multiset` `map` `multimap` 底层通过红黑树实现，`unordered_*` 底层通过散列表实现，两个底层数据结构均有方法 `insert_equal` 和 `insert_unique`
+
+类名 | 底层数据结构 | 时间复杂度 | Ordered / Sorted | 可不可重复 | 其他
+[set](https://github.com/huihut/interview/tree/master/STL#set)|红黑树|插入、删除、查找 O(logn)|sorted|不可重复|
+[multiset](https://github.com/huihut/interview/tree/master/STL#multiset)|红黑树|插入、删除、查找 O(logn)|sorted|可重复|
+[map](https://github.com/huihut/interview/tree/master/STL#map)|红黑树|插入、删除、查找 O(log<sub>2</sub>n)|sorted|不可重复|
+[multimap](https://github.com/huihut/interview/tree/master/STL#multimap)|红黑树|插入、删除、查找 O(log<sub>2</sub>n)|sorted|可重复|
+[unordered_set](https://github.com/huihut/interview/tree/master/STL#unordered_set)|哈希表|插入、删除、查找 O(1) 最差 O(n)|-|不可重复|
+[unordered_multiset](https://github.com/huihut/interview/tree/master/STL#unordered_multiset)|哈希表|插入、删除、查找 O(1) 最差 O(n)|-|可重复|
+[unordered_map](https://github.com/huihut/interview/tree/master/STL#unordered_map)|哈希表|插入、删除、查找 O(1) 最差 O(n)|-|不可重复|
+[unordered_multimap](https://github.com/huihut/interview/tree/master/STL#unordered_multimap)|哈希表|插入、删除、查找 O(1) 最差 O(n)|-|可重复|
+
+#### 容器适配器
+
+类签名 | 底层数据结构 | 时间复杂度 | Ordered / Sorted | 可不可重复 | 其他
+[stack](https://github.com/huihut/interview/tree/master/STL#stack)|默认为 deque|顶部插入、顶部删除 O(1)|ordered|可重复|deque 或 list 封闭头端开口，不用 vector 的原因应该是容量大小有限制，扩容耗时
+[queue](https://github.com/huihut/interview/tree/master/STL#queue)|默认为 deque|尾部插入、头部删除 O(1)|ordered|可重复|deque 或 list 封闭头端开口，不用 vector 的原因应该是容量大小有限制，扩容耗时
+[priority_queue](https://github.com/huihut/interview/tree/master/STL#priority_queue)|默认为 vector + max-heap|插入、删除 O(logn)|-|可重复|vector容器+heap处理规则
+
+
+### 算法
 
 算法 | 底层算法 | 时间复杂度 | 可不可重复
 ---|---|---|---
 [find](http://www.cplusplus.com/reference/algorithm/find/)|顺序查找|O(n)|可重复
 [sort](https://github.com/gcc-mirror/gcc/blob/master/libstdc++-v3/include/bits/stl_algo.h#L4808)|[内省排序](https://en.wikipedia.org/wiki/Introsort)|O(nlogn)|可重复
 
+### 迭代器
+
+```plaintext
+input_iterator  output_iterator
+     ^                ^
+     +--------+-------+                
+              |
+       forward_iterator
+              ^
+              |
+ bidirectional_iterator
+              ^
+              |
+ random_access_iterator
+```
+
+迭代器要求的五个 accosiated type
+- reference
+- pointer
+- value_type
+- difference_type
+- iterator_category
 
 <a id="dsa"></a>
 
