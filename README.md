@@ -601,14 +601,6 @@ int main() {
 }
 ```
 
-### friend 友元类和友元函数
-
-* 能访问私有成员  
-* 破坏封装性
-* 友元关系不可传递
-* 友元关系的单向性
-* 友元声明的形式及数量不受限制
-
 ### using
 
 #### using 声明
@@ -853,48 +845,116 @@ int main()
 
 面向对象三大特征 —— 封装、继承、多态
 
-### 封装
+[Access specifiers](https://en.cppreference.com/w/cpp/language/access)
 
-把客观事物封装成抽象的类，并且类可以把自己的数据和方法只让可信的类或者对象操作，对不可信的进行信息隐藏。关键字：public, protected, private。不写默认为 private。
+#### 封装
+
+把概念（并不一定是客观存在的实体）封装成抽象的类，并且类可以把自己的数据和方法只让可信的类或者对象操作，对不可信的进行信息隐藏。关键字：public, protected, private。`class` 中默认为 private，`struct` 中默认为 `public`，`union` 中默认为 `public`
 
 * `public` 成员：可以被任意实体访问
 * `protected` 成员：只允许被子类及本类的成员函数访问
 * `private` 成员：只允许被本类的成员函数、友元类或友元函数访问
 
-### 继承
+##### `friend`
 
-* 基类（父类）——&gt; 派生类（子类）
+* 能访问私有成员  
+* 破坏封装性
+* 友元关系不可传递
+* 友元关系是单向的
+* 友元声明的形式及数量不受限制
 
-### 多态
+#### 继承
+
+**继承访问修饰符**
+
+https://stackoverflow.com/questions/860339/difference-between-private-public-and-protected-inheritance
+
+```cpp
+class A  {
+ public:
+  int x;
+ protected:
+  int y;
+ private:
+  int z;
+};
+
+class B : public A {
+    // x is public
+    // y is protected
+    // z is not accessible from B
+};
+
+class C : protected A {
+    // x is protected
+    // y is protected
+    // z is not accessible from C
+};
+
+class D : private A  /* 'private' is default for classes */ {
+    // x is private
+    // y is private
+    // z is not accessible from D
+};
+```
+
+`class` 的默认继承访问控制符是 `private`，`struct` 的默认继承访问控制符是 `public`
+
+```cpp
+class B {
+ public:
+  int x;
+ protected:
+  int y;
+ private:
+  int z;
+};
+
+struct D : B {};
+
+struct DD : public D {
+  int &get_y_ref() { return y; }
+};
+
+int main() {
+  D d;
+  d.x = 42;
+  
+  DD dd;
+  dd.get_y_ref() = 42;
+}
+```
+
+#### 多态
 
 * 多态，即多种状态（形态）。简单来说，我们可以将多态定义为消息以多种形式显示的能力。
 * 多态是以封装和继承为基础的。
 * C++ 多态分类及实现：
     1. 重载多态（Ad-hoc Polymorphism，编译期）：函数重载、运算符重载
     2. 子类型多态（Subtype Polymorphism，运行期）：虚函数
-    3. 参数多态性（Parametric Polymorphism，编译期）：类模板、函数模板
+    3. 参数化多态性（Parametric Polymorphism，编译期）：类模板、函数模板
     4. 强制多态（Coercion Polymorphism，编译期/运行期）：基本类型转换、自定义类型转换
 
 > [The Four Polymorphisms in C++](https://catonmat.net/cpp-polymorphism)
 
-#### 静态多态（编译期/早绑定）
+##### 静态多态（编译期/早绑定）
 
 函数重载
 
 ```cpp
-class A
-{
+class A {
 public:
-    void do(int a);
-    void do(int a, int b);
+    void doit(int a);
+    void doit(int a, int b);
 };
 ```
 
-#### 动态多态（运行期期/晚绑定）
+##### 动态多态（运行期期/晚绑定）
+
 * 虚函数：用 virtual 修饰成员函数，使其成为虚函数
 * 动态绑定：当使用基类的引用或指针调用一个虚函数时将发生动态绑定
 
-**注意：**
+**注意**
 
 * 可以将派生类的对象赋值给基类的指针或引用，反之不可
 * 普通函数（非类成员函数）不能是虚函数
@@ -905,23 +965,21 @@ public:
 动态多态使用
 
 ```cpp
-class Shape                     // 形状类
-{
+class Shape {
 public:
-    virtual double calcArea()
-    {
+    virtual double calcArea() {
         ...
     }
     virtual ~Shape();
 };
-class Circle : public Shape     // 圆形类
-{
+
+class Circle : public Shape {
 public:
     virtual double calcArea();
     ...
 };
-class Rect : public Shape       // 矩形类
-{
+
+class Rect : public Shape {
 public:
     virtual double calcArea();
     ...
@@ -940,22 +998,19 @@ int main()
 }
 ```
 
-### 虚析构函数
+#### 虚析构函数
 
 虚析构函数是为了解决基类的指针指向派生类对象，并用基类的指针删除派生类对象。
 
-虚析构函数使用
-
 ```cpp
-class Shape
-{
+class Shape {
 public:
     Shape();                    // 构造函数不能是虚函数
     virtual double calcArea();
     virtual ~Shape();           // 虚析构函数
 };
-class Circle : public Shape     // 圆形类
-{
+
+class Circle : public Shape {
 public:
     virtual double calcArea();
     ...
@@ -970,7 +1025,7 @@ int main()
 }
 ```
 
-### 纯虚函数
+#### 纯虚函数
 
 纯虚函数是一种特殊的虚函数，在基类中不能对虚函数给出有意义的实现，而把它声明为纯虚函数，它的实现留给该基类的派生类去做。
 
@@ -978,7 +1033,7 @@ int main()
 virtual int A() = 0;
 ```
 
-### 虚函数、纯虚函数
+#### 虚函数、纯虚函数
 
 * 类里如果声明了虚函数，这个函数是实现的，哪怕是空实现，它的作用就是为了能让这个函数在它的子类里面可以被覆盖（override），这样的话，编译器就可以使用后期绑定来达到多态了。纯虚函数只是一个接口，是个函数的声明而已，它要留到子类里去实现。 
 * 虚函数在子类里面可以不重写；但纯虚函数必须在子类实现才可以实例化子类。
@@ -988,14 +1043,14 @@ virtual int A() = 0;
 
 > [CSDN . C++ 中的虚函数、纯虚函数区别和联系](https://blog.csdn.net/u012260238/article/details/53610462)
 
-### 虚函数指针、虚函数表
+#### 虚函数指针、虚函数表
 
 * 虚函数指针：在含有虚函数类的对象中，指向虚函数表，在运行时确定。
 * 虚函数表：在程序只读数据段（`.rodata section`，见：[目标文件存储结构](#%E7%9B%AE%E6%A0%87%E6%96%87%E4%BB%B6%E5%AD%98%E5%82%A8%E7%BB%93%E6%9E%84)），存放虚函数指针，如果派生类实现了基类的某个虚函数，则在虚表中覆盖原本基类的那个虚函数指针，在编译时根据类的声明创建。
 
 > [C++中的虚函数(表)实现机制以及用C语言对其进行的模拟实现](https://blog.twofei.com/496/)
 
-### 虚继承
+#### 虚继承
 
 虚继承用于解决多继承条件下的菱形继承问题（浪费存储空间、存在二义性）。
 
@@ -1028,6 +1083,52 @@ virtual int A() = 0;
     * 没有定义任何构造函数
     * 没有类内初始化
     * 没有基类，也没有 virtual 函数
+
+#### 关于继承的争论
+
+https://stackoverflow.com/questions/278476/is-inheritance-really-needed
+
+Quora 上有人对继承在 OOP 中是否必要进行了讨论：https://qr.ae/pGcjVI
+
+上面回答的作者写了一篇短文介绍 Smalltalk-style 的 trait [The Five Minute Introduction to Using Smalltalk-Style Traits Instead of Inheritance](https://publius-ovidius.livejournal.com/314737.html)
+
+```plaintext
+role Programmer {
+        // something, even another role, must implement this
+        requires int seniority();
+
+        // here's a method we provide
+        method salary(float hours_worked) {
+            return hours_worked * (12 + ( this.seniority() / 10 ) );
+        }
+    }
+```
+
+```plaintext
+class AdminCoordinator 
+      isa Employee 
+      does OfficeGrunt, Programmer {
+        int seniority; // we should fail at compile time without this 
+                       // because Programmer requires it
+    }
+```
+
+```plaintext
+class AdminCoordinator 
+      isa Employee
+      does 
+        OfficeGrunt salary -> grunt_salary,
+        Programmer  salary -> programmer_salary
+    {
+        int seniority;
+        method salary(float hours) {
+            return 
+              this.grunt_salary(.75 * hours) 
+              + 
+              this.programmer_salary(.25 * hours);
+        }
+    }
+```
 
 ### 内存分配和管理
 
@@ -1183,11 +1284,11 @@ unique_ptr 是 C++11 才开始提供的类型，是一种在异常时可以帮�
 
 ##### auto_ptr
 
-被 c++11 弃用，原因是缺乏语言特性如 “针对构造和赋值” 的 `std::move` 语义，以及其他瑕疵。
+被 C++11 弃用，原因是缺乏语言特性如“针对构造和赋值”的 `std::move` 语义，以及其他瑕疵。
 
 ##### auto_ptr 与 unique_ptr 比较
 
-* auto_ptr 可以赋值拷贝，复制拷贝后所有权转移；unqiue_ptr 无拷贝赋值语义，但实现了`move` 语义；
+* auto_ptr 可以赋值拷贝，复制拷贝后所有权转移；unique_ptr 无拷贝赋值语义，但实现了`move` 语义；
 * auto_ptr 对象不能管理数组（析构调用 `delete`），unique_ptr 可以管理数组（析构调用 `delete[]` ）；
 
 ### 强制类型转换运算符
@@ -1247,8 +1348,8 @@ catch (bad_cast b) {
 
 #### typeid
 
-* typeid 运算符允许在运行时确定对象的类型
-* type\_id 返回一个 type\_info 对象的引用
+* `typeid` 运算符允许在运行时确定对象的类型
+* `typeid` 返回一个 `type_info` 对象的引用
 * 如果想通过基类的指针获得派生类的数据类型，基类必须带有虚函数
 * 只能获取对象的实际类型
 
@@ -1329,7 +1430,7 @@ int main(){
 
 1. 视 C++ 为一个语言联邦（C、Object-Oriented C++、Template C++、STL）
 2. 宁可以编译器替换预处理器（尽量以 `const`、`enum`、`inline` 替换 `#define`）
-3. 尽可能使用 const
+3. 尽可能使用 `const`
 4. 确定对象被使用前已先被初始化（构造时赋值（copy 构造函数）比 default 构造后赋值（copy assignment）效率高）
 5. 了解 C++ 默默编写并调用哪些函数（编译器暗自为 class 创建 default 构造函数、copy 构造函数、copy assignment 操作符、析构函数）
 6. 若不想使用编译器自动生成的函数，就应该明确拒绝（将不想使用的成员函数声明为 private，并且不予实现）
@@ -1401,7 +1502,7 @@ int main(){
 14. 明智运用 exception specifications（exception specifications 对 “函数希望抛出什么样的 exceptions” 提供了卓越的说明；也有一些缺点，包括编译器只对它们做局部性检验而很容易不经意地违反，与可能会妨碍更上层的 exception 处理函数处理未预期的 exceptions）
 15. 了解异常处理的成本（粗略估计，如果使用 try 语句块，代码大约整体膨胀 5%-10%，执行速度亦大约下降这个数；因此请将你对 try 语句块和 exception specifications 的使用限制于非用不可的地点，并且在真正异常的情况下才抛出 exceptions）
 16. 谨记 80-20 法则（软件的整体性能几乎总是由其构成要素（代码）的一小部分决定的，可使用程序分析器（program profiler）识别出消耗资源的代码）
-17. 考虑使用 lazy evaluation（缓式评估）（可应用于：Reference Counting（引用计数）来避免非必要的对象复制、区分 operator[] 的读和写动作来做不同的事情、Lazy Fetching（缓式取出）来避免非必要的数据库读取动作、Lazy Expression Evaluation（表达式缓评估）来避免非必要的数值计算动作）
+17. 考虑使用 lazy evaluation（惰性求值）（可应用于：Reference Counting（引用计数）来避免非必要的对象复制、区分 operator[] 的读和写动作来做不同的事情、Lazy Fetching（缓式取出）来避免非必要的数据库读取动作、Lazy Expression Evaluation（表达式缓评估）来避免非必要的数值计算动作）
 18. 分期摊还预期的计算成本（当你必须支持某些运算而其结构几乎总是被需要，或其结果常常被多次需要的时候，over-eager evaluation（超急评估）可以改善程序效率）
 
 ### Google C++ Style Guide
